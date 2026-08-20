@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Check, MessageCircle } from "lucide-react";
 import { trackEvent, trackOnce } from "@/lib/analytics";
+import { WHATSAPP_DEMO_URL } from "@/lib/constants";
 
 // sender: 'patient' | 'bot'; delay = offset acumulado (s) para animationDelay; triggersPanel opcional
 const demoConversation = [
@@ -299,7 +300,7 @@ const DemoSplitView = () => {
           </a>
           <div className="flex flex-col items-center gap-1.5">
             <a
-              href="https://wa.me/573226868840?text=Hola%20Sofi%2C%20quiero%20agendar%20una%20cita%20de%20prueba"
+              href={WHATSAPP_DEMO_URL}
               target="_blank"
               rel="noreferrer"
               onClick={() => trackEvent("demo_whatsapp_click", { location: "demo" })}
