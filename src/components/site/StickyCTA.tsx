@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { MessageCircle, CalendarClock } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
+import { WHATSAPP_DEMO_URL } from "@/lib/constants";
 
-const WHATSAPP_URL = "https://wa.me/573226868840";
 const CAL_URL = "https://cal.com/edalti-solution/30min";
 
 const StickyCTA = () => {
@@ -36,7 +36,7 @@ const StickyCTA = () => {
       style={{ marginBottom: "env(safe-area-inset-bottom)" }}
     >
       <a
-        href={WHATSAPP_URL}
+        href={WHATSAPP_DEMO_URL}
         target="_blank"
         rel="noreferrer"
         onClick={() => trackEvent("demo_whatsapp_click", { location: "sticky" })}

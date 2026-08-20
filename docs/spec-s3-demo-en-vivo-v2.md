@@ -87,7 +87,7 @@ Ambos visibles al cierre de la sección. Entregar en formato A/B (activar uno, d
 - **Secundario → WhatsApp Sofi** (número real)
   - A: `Probar a Sofi en WhatsApp`
   - B: `Chatear con Sofi ahora`
-  - Link: `https://wa.me/573226868840?text=Hola%20Sofi%2C%20quiero%20agendar%20una%20cita%20de%20prueba`
+  - Link: `WHATSAPP_DEMO_URL` (`src/lib/constants.ts`) → `https://wa.me/573126848977?text=Hola%20Sofi%2C%20quiero%20probar%20el%20demo`
 
 **Aviso de datos de ejemplo:** junto al CTA de WhatsApp, una línea pequeña (caption): *"Es una demostración, puedes usar datos de ejemplo."*
 
