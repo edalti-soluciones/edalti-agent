@@ -10,6 +10,7 @@ import DemoSplitView from "@/components/site/DemoSplitView";
 import WhatsAppMockup from "@/components/site/WhatsAppMockup";
 import BeforeAfter from "@/components/site/BeforeAfter";
 import { trackEvent } from "@/lib/analytics";
+import { GENERIC_TRIAL_COPY } from "@/data/plans";
 
 const stats = [
   { value: "100%", label: "de mensajes respondidos" },
@@ -524,7 +525,7 @@ const Inicio = () => {
                 </Link>
               </div>
               <p className="mt-4 inline-flex items-center justify-center gap-2 text-sm text-primary-foreground">
-                <Check className="h-4 w-4" /> 15 días de prueba gratuita. Sin tarjeta de crédito.
+                <Check className="h-4 w-4" /> {GENERIC_TRIAL_COPY}
               </p>
             </div>
           </div>
