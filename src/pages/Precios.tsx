@@ -3,81 +3,19 @@ import { Check, MessageCircle, Sparkles, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import SiteLayout from "@/components/site/SiteLayout";
 import { trackEvent, trackOnce } from "@/lib/analytics";
-
-type Plan = {
-  name: string;
-  tagline: string;
-  monthlyPrice: number;
-  annualMonthlyPrice: number;
-  annualTotal: number;
-  highlight?: boolean;
-  features: string[];
-  cta: string;
-  ctaHref: string;
-};
+import {
+  ANNUAL_DISCOUNT,
+  OVERAGE_ALERT_THRESHOLD,
+  OVERAGE_PRICE,
+  annualMonthlyPrice,
+  formatCOP,
+  formatNumber,
+  planFeatures,
+  plans,
+  trialCopy,
+} from "@/data/plans";
 
 type Billing = "monthly" | "annual";
-
-const plans: Plan[] = [
-  {
-    name: "Esencial",
-    tagline: "Para negocios pequeños empezando con automatización",
-    monthlyPrice: 149000,
-    annualMonthlyPrice: 119000,
-    annualTotal: 1428000,
-    features: [
-      "1 agente IA en WhatsApp",
-      "Hasta 500 conversaciones/mes",
-      "Agendamiento básico",
-      "1 calendario integrado",
-      "Recordatorios automáticos",
-      "Soporte por email",
-    ],
-    cta: "Empezar con Esencial",
-    ctaHref: "https://cal.com/edalti-solution/30min",
-  },
-  {
-    name: "Profesional",
-    tagline: "Lo más elegido por PyMEs en crecimiento",
-    monthlyPrice: 349000,
-    annualMonthlyPrice: 279000,
-    annualTotal: 3348000,
-    highlight: true,
-    features: [
-      "1 agente IA personalizado",
-      "Hasta 2.500 conversaciones/mes",
-      "Agendamiento avanzado con reglas",
-      "Hasta 3 calendarios / sedes",
-      "Recordatorios + confirmaciones",
-      "Reportes de rendimiento",
-      "Soporte prioritario por WhatsApp",
-    ],
-    cta: "Empezar con Profesional",
-    ctaHref: "https://cal.com/edalti-solution/30min",
-  },
-  {
-    name: "Empresarial",
-    tagline: "Para empresas con alto volumen y múltiples sedes",
-    monthlyPrice: 799000,
-    annualMonthlyPrice: 639000,
-    annualTotal: 7668000,
-    features: [
-      "Agentes IA ilimitados",
-      "Conversaciones ilimitadas",
-      "Sedes y calendarios ilimitados",
-      "Flujos personalizados a medida",
-      "Integración con tu CRM o ERP",
-      "Panel multiusuario para tu equipo",
-      "Onboarding y entrenamiento dedicado",
-      "Soporte 24/7 con SLA",
-    ],
-    cta: "Hablar con ventas",
-    ctaHref: "https://cal.com/edalti-solution/30min",
-  },
-];
-
-const formatCOP = (n: number) =>
-  new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(n);
 
 const includedAll = [
   "API oficial de WhatsApp Business",
@@ -100,12 +38,16 @@ const faqs = [
     a: "Facturamos mensualmente en pesos colombianos (COP). Aceptamos transferencia, tarjeta y PSE. Emitimos factura electrónica DIAN.",
   },
   {
-    q: "¿Qué pasa si supero las conversaciones de mi plan?",
-    a: "Te notificamos antes de llegar al límite. Puedes subir de plan o pagar conversaciones adicionales sin interrupciones.",
+    q: "¿Qué es una conversación?",
+    a: "Una conversación es todo el intercambio con un paciente dentro de una ventana de 24 horas, sin importar cuántos mensajes incluya. Si el mismo paciente vuelve a escribir al día siguiente, cuenta como una conversación nueva.",
   },
   {
-    q: "¿Tienen periodo de prueba?",
-    a: "Ofrecemos una demo personalizada gratuita donde te mostramos el agente funcionando con tu caso de uso real.",
+    q: "¿Qué pasa si supero las conversaciones de mi plan?",
+    a: `Te avisamos cuando llegues al ${OVERAGE_ALERT_THRESHOLD}% de tu cupo. Por defecto el agente sigue atendiendo y las conversaciones adicionales se facturan a $${formatNumber(OVERAGE_PRICE)} COP cada una. Desde tu panel puedes activar un tope para que el agente pause al llegar al límite.`,
+  },
+  {
+    q: "¿Cómo funciona la prueba gratuita?",
+    a: "Tienes 15 días o el cupo de conversaciones del plan que estés evaluando, lo que ocurra primero. No pedimos tarjeta de crédito. Los 15 días empiezan a contar cuando tu agente queda activo sobre tu número de WhatsApp, no cuando nos escribes.",
   },
 ];
 
@@ -172,7 +114,7 @@ const Precios = () => {
           </div>
           {isAnnual && (
             <span className="rounded-full bg-success px-3 py-1 text-xs font-bold text-success-foreground animate-fade-in">
-              Ahorra hasta 20%
+              Ahorra {ANNUAL_DISCOUNT * 100}%
             </span>
           )}
         </div>
@@ -200,9 +142,18 @@ const Precios = () => {
                 </p>
               </div>
               <div className="mt-6">
+                {/* El renglón "Desde" se reserva en las tres tarjetas para que los CTA queden alineados. */}
+                <span
+                  aria-hidden={!p.priceFrom}
+                  className={`block text-base font-semibold ${
+                    p.highlight ? "text-background/70" : "text-muted-foreground"
+                  }`}
+                >
+                  {p.priceFrom ? "Desde" : "\u00a0"}
+                </span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl lg:text-5xl font-bold tracking-tight">
-                    {formatCOP(isAnnual ? p.annualMonthlyPrice : p.monthlyPrice)}
+                  <span className="text-4xl md:text-2xl lg:text-4xl xl:text-5xl font-bold tracking-tight">
+                    {formatCOP(isAnnual ? annualMonthlyPrice(p) : p.monthlyPrice)}
                   </span>
                 </div>
                 <span className={`text-sm ${p.highlight ? "text-background/60" : "text-muted-foreground"}`}>
@@ -210,7 +161,7 @@ const Precios = () => {
                 </span>
                 {isAnnual && (
                   <p className={`mt-2 text-sm ${p.highlight ? "text-background/70" : "text-muted-foreground"}`}>
-                    facturado como {formatCOP(p.annualTotal)} COP/año
+                    facturado anualmente · ahorras {ANNUAL_DISCOUNT * 100}%
                   </p>
                 )}
               </div>
@@ -233,10 +184,10 @@ const Precios = () => {
                   p.highlight ? "text-background/70" : "text-muted-foreground"
                 }`}
               >
-                15 días de prueba gratuita. Sin tarjeta de crédito.
+                {trialCopy(p)}
               </p>
               <ul className="mt-8 space-y-3 flex-1">
-                {p.features.map((f) => (
+                {planFeatures(p).map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm">
                     <span
                       className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center shrink-0 ${
@@ -254,7 +205,8 @@ const Precios = () => {
         </div>
         {isAnnual && (
           <p className="container-edalti mt-6 text-center text-sm font-semibold text-primary animate-fade-in">
-            Ahorra hasta $1.920.000 COP al año con el plan Empresarial anual.
+            Con facturación anual ahorras el {ANNUAL_DISCOUNT * 100}% de la mensualidad en
+            cualquier plan.
           </p>
         )}
 
@@ -268,6 +220,13 @@ const Precios = () => {
             <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
               A partir de octubre, Meta cobra por conversación en WhatsApp. Las conversaciones de
               Sofi son cortas y de bajo costo.
+            </p>
+          </div>
+          <div className="mx-auto mt-4 max-w-3xl rounded-2xl border border-border bg-secondary/60 p-5 text-center">
+            <p className="text-sm text-body leading-relaxed">
+              ¿Superas tu plan? Cada conversación adicional cuesta ${formatNumber(OVERAGE_PRICE)} COP.
+              Te avisamos cuando llegues al {OVERAGE_ALERT_THRESHOLD}% de tu cupo y decides desde tu
+              panel si continúas o pausas el agente.
             </p>
           </div>
         </div>
